@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="LogiFast — системний диспетчеринг, експедирування та експорт зернових. Надійна логістика з індивідуальним підходом." />
+    <link rel="icon" href="favicon.ico" type="image/x-icon" />
+    <title>LogiFast — Системний диспетчеринг та надійна логістика</title>
+
+    <!-- Попереднє підключення до Google Fonts для швидшого завантаження -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Literata:opsz@7..72&display=swap" rel="stylesheet" />
+
+    <style>
+        /* ===== Глобальні скидання ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Literata', serif;
+            background: #fafaf8;
+            color: #1e1e1e;
+            line-height: 1.6;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+            transition: color 0.25s;
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        /* ===== Навігація ===== */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 32px;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            left: 0;
+            z-index: 1001;
+            background-color: transparent;
+            transition: background 0.35s ease, box-shadow 0.35s ease;
+        }
+
+        .navbar.scrolled {
+            background-color: #1a2a1f;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            font-size: 22px;
+            font-weight: 600;
+            color: #fff;
+            flex-shrink: 0;
+        }
+
+        .logo img {
+            height: 38px;
+            margin-right: 14px;
+            border-radius: 6px;
+        }
+
+        .logo span {
+            color: #8bc34a;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.85);
+            white-space: nowrap;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+            padding: 4px 0;
+        }
+
+        .nav-links::-webkit-scrollbar {
+            display: none;
+        }
+
+        .nav-links a {
+            padding: 6px 0;
+            border-bottom: 2px solid transparent;
+            transition: border-color 0.25s, color 0.25s;
+            font-weight: 500;
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: #fff;
+            border-bottom-color: #8bc34a;
+        }
+
+        /* ===== Герой ===== */
+        .hero {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            background: url('baner.webp') center / cover no-repeat fixed;
+            isolation: isolate;
+        }
+
+        .hero::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: rgba(10, 20, 12, 0.45);
+            z-index: 0;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            max-width: 820px;
+            padding: 40px 24px;
+        }
+
+        .hero h1 {
+            font-weight: 400;
+            font-size: clamp(32px, 6vw, 52px);
+            color: #fff;
+            text-shadow: 0 4px 24px rgba(0, 0, 0, 0.35);
+            line-height: 1.2;
+            margin: 0 0 16px;
+        }
+
+        .hero p {
+            font-size: clamp(16px, 2vw, 22px);
+            color: rgba(255, 255, 255, 0.9);
+            text-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+            max-width: 600px;
+            margin: 0 auto 32px;
+        }
+
+        .hero-btn {
+            display: inline-block;
+            padding: 14px 40px;
+            background: #2b7a5a;
+            color: #fff;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 40px;
+            transition: background 0.3s, transform 0.2s;
+            box-shadow: 0 6px 24px rgba(43, 122, 90, 0.35);
+        }
+
+        .hero-btn:hover {
+            background: #1f5f45;
+            transform: translateY(-2px);
+        }
+
+        /* ===== Вступ (основний орієнтир) ===== */
+        main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        .intro {
+            text-align: center;
+            padding: 70px 0 50px;
+            font-size: 20px;
+            max-width: 780px;
+            margin: 0 auto;
+            color: #2d3a30;
+            line-height: 1.7;
+        }
+
+        .intro h2 {
+            font-weight: 500;
+            font-size: 28px;
+            margin-bottom: 16px;
+            color: #1a2a1f;
+        }
+
+        .intro strong {
+            color: #1f5f45;
+        }
+
+        /* ===== Послуги ===== */
+        .services {
+            padding: 20px 0 70px;
+        }
+
+        .services h2 {
+            text-align: center;
+            font-weight: 500;
+            font-size: 28px;
+            color: #1a2a1f;
+            margin-bottom: 40px;
+        }
+
+        .services-grid {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            flex-wrap: wrap;
+        }
+
+        .service-card {
+            width: 300px;
+            background: #fff;
+            border-radius: 18px;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
+            transition: transform 0.3s, box-shadow 0.3s;
+            text-align: center;
+        }
+
+        .service-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 16px 48px rgba(43, 122, 90, 0.12);
+        }
+
+        .service-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            transition: transform 0.4s;
+        }
+
+        .service-card:hover img {
+            transform: scale(1.02);
+        }
+
+        .service-card h3 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1a2a1f;
+            padding: 20px 16px 8px;
+        }
+
+        .service-card p {
+            font-size: 14px;
+            color: #5a6a5e;
+            padding: 0 16px 24px;
+            line-height: 1.5;
+        }
+
+        /* ===== Контакти ===== */
+        .contacts-section {
+            padding: 40px 0 90px;
+            max-width: 860px;
+            margin: 0 auto;
+        }
+
+        .contacts-section h2 {
+            font-size: 28px;
+            font-weight: 500;
+            color: #1a2a1f;
+            margin-bottom: 32px;
+            position: relative;
+        }
+
+        .contacts-section h2::after {
+            content: '';
+            display: block;
+            width: 56px;
+            height: 3px;
+            background: #2b7a5a;
+            margin-top: 8px;
+            border-radius: 4px;
+        }
+
+        .contacts-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 32px 48px;
+        }
+
+        .contact-item {
+            background: #f4f6f2;
+            padding: 22px 28px;
+            border-radius: 14px;
+            border-left: 4px solid #2b7a5a;
+            transition: background 0.25s;
+        }
+
+        .contact-item:hover {
+            background: #edf2ea;
+        }
+
+        .contact-item h3 {
+            font-size: 17px;
+            font-weight: 600;
+            color: #1a2a1f;
+            margin-bottom: 4px;
+        }
+
+        .contact-item .role {
+            font-size: 14px;
+            color: #5a6a5e;
+            margin-bottom: 10px;
+            font-weight: 400;
+            line-height: 1.4;
+        }
+
+        .contact-item .phone {
+            font-size: 16px;
+            color: #1f5f45;
+            font-weight: 500;
+        }
+
+        .contact-item .email a {
+            color: #4a6a4e;
+            text-decoration: none;
+            border-bottom: 1px dashed #4a6a4e;
+            transition: color 0.2s, border-color 0.2s;
+        }
+
+        .contact-item .email a:hover {
+            color: #1f5f45;
+            border-bottom-color: #1f5f45;
+        }
+
+        /* ===== Нижня панель ===== */
+        .bottom-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 58px;
+            background: #2b7a5a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 999;
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        .bottom-bar a {
+            color: #fff;
+            font-size: 15px;
+            font-weight: 600;
+            letter-spacing: 0.6px;
+            text-transform: uppercase;
+            padding: 0 24px;
+            transition: opacity 0.25s, transform 0.2s;
+        }
+
+        .bottom-bar a:hover {
+            opacity: 0.8;
+            transform: scale(1.02);
+        }
+
+        /* ===== Адаптивність ===== */
+        @media (max-width: 820px) {
+            .navbar {
+                padding: 10px 20px;
+            }
+            .logo {
+                font-size: 18px;
+            }
+            .logo img {
+                height: 30px;
+                margin-right: 10px;
+            }
+            .nav-links {
+                gap: 14px;
+                font-size: 12px;
+            }
+            .contacts-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .navbar {
+                padding: 8px 14px;
+            }
+            .logo {
+                font-size: 15px;
+            }
+            .logo img {
+                height: 24px;
+                margin-right: 8px;
+            }
+            .nav-links {
+                gap: 10px;
+                font-size: 10.5px;
+            }
+            .hero {
+                background-attachment: scroll;
+                min-height: 80vh;
+            }
+            .hero h1 {
+                font-size: 26px;
+            }
+            .hero p {
+                font-size: 15px;
+            }
+            .hero-btn {
+                padding: 12px 28px;
+                font-size: 14px;
+            }
+            .intro {
+                font-size: 17px;
+                padding: 40px 0 30px;
+            }
+            .services-grid {
+                gap: 24px;
+            }
+            .service-card {
+                width: 100%;
+                max-width: 340px;
+            }
+            .service-card img {
+                height: 160px;
+            }
+            .contacts-section {
+                padding: 20px 0 80px;
+            }
+            .contacts-section h2 {
+                font-size: 22px;
+            }
+            .contact-item {
+                padding: 16px 18px;
+            }
+            .bottom-bar {
+                height: 50px;
+            }
+            .bottom-bar a {
+                font-size: 12px;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .logo {
+                font-size: 13px;
+            }
+            .logo img {
+                height: 20px;
+                margin-right: 6px;
+            }
+            .nav-links {
+                gap: 6px;
+                font-size: 9px;
+            }
+            .hero h1 {
+                font-size: 22px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== НАВІГАЦІЯ ===== -->
+    <header class="navbar" id="navbar">
+        <div class="logo">
+            <img src="logo.webp" alt="LogiFast logo" width="38" height="38" />
+            Logi<span>Fast</span>
+        </div>
+        <nav class="nav-links">
+            <a href="#" class="active">Головна</a>
+            <a href="https://t.me/logifast" target="_blank">Зв'язатися</a>
+            <a href="https://www.linkedin.com/in/anna-savchenko-a668a3387/" target="_blank">LinkedIn</a>
+            <a href="https://lardi-trans.com/log/u/logifast/" target="_blank">Lardi-trans</a>
+        </nav>
+    </header>
+
+    <!-- ===== ГЕРОЙ ===== -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1>LogiFast — системний диспетчеринг та надійна логістика</h1>
+            <p>Будуємо логістику без ілюзій. Працюємо з реальними умовами ринку.</p>
+            <a href="#contacts" class="hero-btn">Обговорити проєкт</a>
+        </div>
+    </section>
+
+    <!-- ===== ОСНОВНИЙ КОНТЕНТ (main landmark) ===== -->
+    <main>
+
+        <!-- Вступ -->
+        <section class="intro">
+            <h2>Хто ми</h2>
+            <p><strong>LogiFast</strong> — це команда професіоналів, які забезпечують системний підхід до диспетчерингу, експедирування та експорту. Ми цінуємо ваш час і ресурси.</p>
+        </section>
+
+        <!-- Послуги -->
+        <section class="services">
+            <h2>Наші послуги</h2>
+            <div class="services-grid">
+                <div class="service-card">
+                    <img src="pic1.webp" alt="Експедирування" width="300" height="200" loading="lazy" />
+                    <h3>Експедирування</h3>
+                    <p>Організація перевезень будь-якої складності. Контроль на всіх етапах — від завантаження до доставки.</p>
+                </div>
+                <div class="service-card">
+                    <img src="pic2.webp" alt="Експорт зернових" width="300" height="200" loading="lazy" />
+                    <h3>Експорт зернових</h3>
+                    <p>Повний цикл експорту зернових культур: логістика, документація, митне оформлення та контроль якості.</p>
+                </div>
+                <div class="service-card">
+                    <img src="pic3.webp" alt="Консалтинг та супровід" width="300" height="200" loading="lazy" />
+                    <h3>Консалтинг та супровід</h3>
+                    <p>Аналіз логістичних процесів, оптимізація маршрутів, юридичний та документальний супровід угод.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Контакти -->
+        <section class="contacts-section" id="contacts">
+            <h2>Контакти для зв'язку</h2>
+            <div class="contacts-grid">
+                <div class="contact-item">
+                    <h3>Анна Савченко</h3>
+                    <p class="role">Операційні питання, поточні вантажі, прорахунок вартості</p>
+                    <div class="phone">📞 +380 93 605 87 67</div>
+                    <div class="email">
+                        ✉️ <a href="mailto:anna@logifastukraine.com">anna@logifastukraine.com</a>
+                    </div>
+                </div>
+                <div class="contact-item">
+                    <h3>Євгеній Савченко</h3>
+                    <p class="role">Стратегічне партнерство</p>
+                    <div class="phone">📞 +380 50 509 80 58</div>
+                    <div class="email">
+                        ✉️ <a href="mailto:yevhenii@logifastukraine.com">yevhenii@logifastukraine.com</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ===== НИЖНЯ ПАНЕЛЬ ===== -->
+    <div class="bottom-bar">
+        <a href="https://t.me/logifast" target="_blank">Зв'язатися для прорахунку</a>
+    </div>
+
+    <!-- ===== СКРИПТ ===== -->
+    <script>
+        window.addEventListener('scroll', function() {
+            const navbar = document.getElementById('navbar');
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+    </script>
+
+</body>
+</html>
