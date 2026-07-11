@@ -1,2 +1,2 @@
-# logifast
-"Hello LogiFast"
+# git_test
+"Hello LogiFast!"

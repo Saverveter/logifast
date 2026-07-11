@@ -13,6 +13,26 @@
     <link href="https://fonts.googleapis.com/css2?family=Literata:opsz@7..72&display=swap" rel="stylesheet" />
 
     <style>
+        /* ===== Доступність ===== */
+        :focus-visible {
+            outline: 2px solid #2d6a4f;
+            outline-offset: 2px;
+        }
+
+        .skip-link {
+            position: absolute;
+            top: -100%;
+            left: 0;
+            background: #2d6a4f;
+            color: #fff;
+            padding: 8px 16px;
+            z-index: 10000;
+            text-decoration: none;
+        }
+        .skip-link:focus {
+            top: 0;
+        }
+
         /* ===== Глобальні скидання ===== */
         * {
             margin: 0;
@@ -468,6 +488,7 @@
     </style>
 </head>
 <body>
+<a href="#main-content" class="skip-link">Перейти до змісту</a>
 
     <!-- ===== НАВІГАЦІЯ ===== -->
     <header class="navbar" id="navbar">
@@ -493,7 +514,7 @@
     </section>
 
     <!-- ===== ОСНОВНИЙ КОНТЕНТ (main landmark) ===== -->
-    <main>
+    <main id="main-content">
 
         <!-- Вступ -->
         <section class="intro">
