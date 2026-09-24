@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Актуальні оголошення LogiFast — експорт та імпорт вантажів. Оновлюється щодня." />
+    <link rel="icon" href="favicon.ico" type="image/x-icon" />
+    <title>Оголошення — LogiFast</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Literata:opsz@7..72&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Literata', serif;
+            background: #fafaf8;
+            color: #1e1e1e;
+            line-height: 1.6;
+            padding-bottom: 80px;
+        }
+        a { text-decoration: none; color: inherit; }
+
+        .navbar {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 12px 32px; position: sticky; top: 0; z-index: 1001;
+            background-color: #1a2a1f; box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        }
+        .logo { display: flex; align-items: center; font-size: 22px; font-weight: 600; color: #fff; }
+        .logo img { height: 38px; margin-right: 14px; border-radius: 6px; }
+        .logo span { color: #8bc34a; }
+        .nav-links { display: flex; gap: 20px; font-size: 13px; color: rgba(255,255,255,0.85); white-space: nowrap; overflow-x: auto; }
+        .nav-links a { padding: 6px 0; border-bottom: 2px solid transparent; transition: border-color 0.25s; font-weight: 500; }
+        .nav-links a:hover, .nav-links a.active { color: #fff; border-bottom-color: #8bc34a; }
+
+        .container { max-width: 1200px; margin: 0 auto; padding: 40px 24px; }
+        h1 { font-weight: 500; font-size: clamp(28px, 5vw, 40px); color: #1a2a1f; margin-bottom: 8px; }
+        .subtitle { color: #5a6a5e; margin-bottom: 32px; font-size: 16px; }
+
+        .controls { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 32px; }
+        .filter-btn {
+            padding: 10px 20px; border: 2px solid #2b7a5a; background: transparent;
+            color: #2b7a5a; border-radius: 40px; cursor: pointer; font-family: inherit;
+            font-size: 14px; font-weight: 600; transition: all 0.2s;
+        }
+        .filter-btn:hover, .filter-btn.active { background: #2b7a5a; color: #fff; }
+        .search-input {
+            flex: 1; min-width: 200px; padding: 10px 20px; border: 2px solid #e0e5e0;
+            border-radius: 40px; font-family: inherit; font-size: 14px; outline: none;
+            transition: border-color 0.2s;
+        }
+        .search-input:focus { border-color: #2b7a5a; }
+
+        .board { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 24px; }
+
+        .card {
+            background: #fff; border-radius: 18px; padding: 24px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.06);
+            border-left: 4px solid #2b7a5a;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .card:hover { transform: translateY(-4px); box-shadow: 0 16px 48px rgba(43,122,90,0.12); }
+        .card.import { border-left-color: #1976d2; }
+
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; gap: 12px; }
+        .badge {
+            display: inline-block; padding: 4px 12px; border-radius: 20px;
+            font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        .badge.export { background: #e8f5e9; color: #2b7a5a; }
+        .badge.import { background: #e3f2fd; color: #1976d2; }
+        .card-date { font-size: 12px; color: #999; }
+
+        .route { font-size: 16px; font-weight: 600; color: #1a2a1f; margin-bottom: 16px; line-height: 1.4; }
+        .route .arrow { color: #2b7a5a; margin: 0 6px; }
+
+        .card-row { display: flex; gap: 10px; margin-bottom: 10px; font-size: 14px; align-items: flex-start; }
+        .card-row .icon { flex-shrink: 0; width: 20px; }
+        .card-row .label { color: #5a6a5e; min-width: 80px; flex-shrink: 0; }
+        .card-row .value { color: #1e1e1e; word-break: break-word; }
+
+        .card-footer {
+            margin-top: 20px; padding-top: 16px; border-top: 1px solid #eef2ee;
+            display: flex; justify-content: space-between; align-items: center; gap: 12px;
+        }
+        .price { font-size: 18px; font-weight: 700; color: #2b7a5a; }
+        .contact-btn {
+            padding: 8px 18px; background: #2b7a5a; color: #fff;
+            border-radius: 30px; font-size: 13px; font-weight: 600;
+            transition: background 0.2s, transform 0.2s;
+        }
+        .contact-btn:hover { background: #1f5f45; transform: scale(1.03); }
+
+        .loading, .error, .empty {
+            text-align: center; padding: 60px 20px; color: #5a6a5e;
+            font-size: 16px; grid-column: 1 / -1;
+        }
+        .error { color: #c62828; }
+
+        @media (max-width: 480px) {
+            .navbar { padding: 8px 14px; }
+            .logo { font-size: 15px; }
+            .logo img { height: 24px; margin-right: 8px; }
+            .nav-links { gap: 10px; font-size: 10.5px; }
+            .container { padding: 24px 16px; }
+            .board { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="navbar">
+        <a href="/" class="logo">
+            <img src="logo.webp" alt="LogiFast logo" />
+            Logi<span>Fast</span>
+        </a>
+        <nav class="nav-links">
+            <a href="/">Головна</a>
+            <a href="board.html" class="active">Оголошення</a>
+            <a href="https://t.me/logifast" target="_blank">Telegram</a>
+        </nav>
+    </header>
+
+    <main class="container">
+        <h1>Актуальні оголошення</h1>
+        <p class="subtitle">Експорт та імпорт вантажів. Оновлюється щодня.</p>
+
+        <div class="controls">
+            <button class="filter-btn active" data-filter="all">Всі</button>
+            <button class="filter-btn" data-filter="Експорт">Експорт</button>
+            <button class="filter-btn" data-filter="Імпорт">Імпорт</button>
+            <input type="text" class="search-input" id="search" placeholder="Пошук за країною, містом, вантажем..." />
+        </div>
+
+        <div class="board" id="board">
+            <p class="loading">Завантаження оголошень...</p>
+        </div>
+    </main>
+
+    <script>
+        const API_URL = 'https://script.google.com/macros/s/AKfycbyatAUQq657hCQdKnTMSutp7wMDV1D7jyBA8x0UdNna_znEEgaWWzbFLVk0mltWy5OB/exec';
+
+        let allAnnouncements = [];
+        let currentFilter = 'all';
+        let currentSearch = '';
+
+        function clean(obj) {
+            const out = {};
+            Object.keys(obj).forEach(k => {
+                const cleanKey = String(k).trim();
+                const v = obj[k];
+                out[cleanKey] = (typeof v === 'string') ? v.trim() : v;
+            });
+            return out;
+        }
+
+        async function loadAnnouncements() {
+            const board = document.getElementById('board');
+            try {
+                const response = await fetch(API_URL + '?t=' + Date.now());
+                if (!response.ok) throw new Error('Network error');
+                const rawData = await response.json();
+                allAnnouncements = rawData.map(clean);
+                renderAnnouncements();
+            } catch (error) {
+                board.innerHTML = '<p class="error">Не вдалося завантажити оголошення. Спробуйте оновити сторінку пізніше.</p>';
+                console.error(error);
+            }
+        }
+
+        function renderAnnouncements() {
+            const board = document.getElementById('board');
+            let filtered = allAnnouncements;
+
+            if (currentFilter !== 'all') {
+                filtered = filtered.filter(a => a['тип'] === currentFilter);
+            }
+            if (currentSearch) {
+                const q = currentSearch.toLowerCase();
+                filtered = filtered.filter(a =>
+                    Object.values(a).some(v => String(v).toLowerCase().includes(q))
+                );
+            }
+
+            if (filtered.length === 0) {
+                board.innerHTML = '<p class="empty">Наразі немає активних оголошень за цим фільтром.</p>';
+                return;
+            }
+
+            board.innerHTML = filtered.map(a => {
+                const isImport = a['тип'] === 'Імпорт';
+                const badgeClass = isImport ? 'import' : 'export';
+                const cardClass = isImport ? 'card import' : 'card';
+                const country = a['країна'] ? `#${a['країна']}` : '';
+
+                return `
+                    <div class="${cardClass}">
+                        <div class="card-header">
+                            <span class="badge ${badgeClass}">${a['тип'] || ''} ${country}</span>
+                            <span class="card-date">${a['дата'] || ''}</span>
+                        </div>
+                        <div class="route">
+                            📍 ${a['звідки'] || ''} <span class="arrow">➔</span> ${a['куди'] || ''}
+                        </div>
+                        ${a['завантаження'] ? `<div class="card-row"><span class="icon">🗓</span><span class="label">Завантаження:</span><span class="value">${a['завантаження']}</span></div>` : ''}
+                        ${a['вантаж'] ? `<div class="card-row"><span class="icon">📦</span><span class="label">Вантаж:</span><span class="value">${a['вантаж']}</span></div>` : ''}
+                        ${a['авто'] ? `<div class="card-row"><span class="icon">🚛</span><span class="label">Авто:</span><span class="value">${a['авто']}</span></div>` : ''}
+                        ${a['митниця'] ? `<div class="card-row"><span class="icon">📑</span><span class="label">Митниця:</span><span class="value">${a['митниця']}</span></div>` : ''}
+                        <div class="card-footer">
+                            <span class="price">${a['оплата'] || 'За запитом'}</span>
+                            <a href="https://t.me/logifast" target="_blank" class="contact-btn">Обговорити</a>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentFilter = btn.dataset.filter;
+                renderAnnouncements();
+            });
+        });
+
+        document.getElementById('search').addEventListener('input', (e) => {
+            currentSearch = e.target.value;
+            renderAnnouncements();
+        });
+
+        loadAnnouncements();
+    </script>
+</body>
+</html>
