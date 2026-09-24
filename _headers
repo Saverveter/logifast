@@ -5,3 +5,5 @@
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
   Content-Security-Policy: default-src 'self' https: data:; style-src 'unsafe-inline' https:; font-src https:; img-src 'self' https: data:
+/board.html
+  Cache-Control: no-cache, must-revalidate
