@@ -146,14 +146,26 @@
         let currentSearch = '';
 
         function clean(obj) {
-            const out = {};
-            Object.keys(obj).forEach(k => {
-                const cleanKey = String(k).trim();
-                const v = obj[k];
-                out[cleanKey] = (typeof v === 'string') ? v.trim() : v;
-            });
-            return out;
+    const out = {};
+    Object.keys(obj).forEach(k => {
+        const cleanKey = String(k).trim();
+        let v = obj[k];
+        if (typeof v === 'string') {
+            v = v.trim();
+            // Якщо це ISO-дата — перетворюємо у формат ДД.ММ.РРРР
+            if (cleanKey === 'дата' && /^\d{4}-\d{2}-\d{2}T/.test(v)) {
+                const d = new Date(v);
+                const dd = String(d.getDate()).padStart(2, '0');
+                const mm = String(d.getMonth() + 1).padStart(2, '0');
+                const yyyy = d.getFullYear();
+                v = dd + '.' + mm + '.' + yyyy;
+            }
         }
+        out[cleanKey] = v;
+    });
+    return out;
+}
+
 
         async function loadAnnouncements() {
             const board = document.getElementById('board');
