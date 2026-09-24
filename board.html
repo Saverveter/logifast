@@ -141,108 +141,123 @@
     <script>
         const API_URL = 'https://script.google.com/macros/s/AKfycbyatAUQq657hCQdKnTMSutp7wMDV1D7jyBA8x0UdNna_znEEgaWWzbFLVk0mltWy5OB/exec';
 
-        let allAnnouncements = [];
-        let currentFilter = 'all';
-        let currentSearch = '';
+let allAnnouncements = [];
+let currentFilter = 'all';
+let currentSearch = '';
 
-        function clean(obj) {
+function clean(obj) {
     const out = {};
     Object.keys(obj).forEach(k => {
-        const cleanKey = String(k).trim();
+        const key = String(k).trim();
         let v = obj[k];
-        if (typeof v === 'string') {
-            v = v.trim();
-            // Якщо це ISO-дата — перетворюємо у формат ДД.ММ.РРРР
-            if (cleanKey === 'дата' && /^\d{4}-\d{2}-\d{2}T/.test(v)) {
-                const d = new Date(v);
-                const dd = String(d.getDate()).padStart(2, '0');
-                const mm = String(d.getMonth() + 1).padStart(2, '0');
-                const yyyy = d.getFullYear();
-                v = dd + '.' + mm + '.' + yyyy;
-            }
-        }
-        out[cleanKey] = v;
+        if (typeof v === 'string') v = v.trim();
+        out[key] = v;
     });
     return out;
 }
 
+// Перетворює текст оголошення: замінює Вантаж, прибирає Оплату
+function transformAnnouncement(text) {
+    if (!text) return '';
+    const lines = text.split('\n');
+    const out = [];
+    for (let line of lines) {
+        // Прибираємо рядок з Оплатою
+        if (/💵/.test(line)) continue;
 
-        async function loadAnnouncements() {
-            const board = document.getElementById('board');
-            try {
-                const response = await fetch(API_URL + '?t=' + Date.now());
-                if (!response.ok) throw new Error('Network error');
-                const rawData = await response.json();
-                allAnnouncements = rawData.map(clean);
-                renderAnnouncements();
-            } catch (error) {
-                board.innerHTML = '<p class="error">Не вдалося завантажити оголошення. Спробуйте оновити сторінку пізніше.</p>';
-                console.error(error);
+        // Замінюємо рядок з Вантажем
+        if (/📦/.test(line)) {
+            const isGrain = /зерн|зерно|ріпак|шрот|соя|сою|горох|пшениц|кукурудз|ячмін|макух|соняшник|овес|жито|біг[\s-]?бег|big[\s-]?bag/i.test(line);
+            if (isGrain) {
+                out.push('📦 Вантаж: Зерно в біг-бегах');
+            } else {
+                out.push('📦 Вантаж: ТНС');
             }
+            continue;
         }
 
-        function renderAnnouncements() {
-            const board = document.getElementById('board');
-            let filtered = allAnnouncements;
+        out.push(line);
+    }
+    return out.join('\n');
+}
 
-            if (currentFilter !== 'all') {
-                filtered = filtered.filter(a => a['тип'] === currentFilter);
-            }
-            if (currentSearch) {
-                const q = currentSearch.toLowerCase();
-                filtered = filtered.filter(a =>
-                    Object.values(a).some(v => String(v).toLowerCase().includes(q))
-                );
-            }
+async function loadAnnouncements() {
+    const board = document.getElementById('board');
+    try {
+        const response = await fetch(API_URL + '?t=' + Date.now());
+        if (!response.ok) throw new Error('Network error');
+        const rawData = await response.json();
+        allAnnouncements = rawData.map(clean);
+        renderAnnouncements();
+    } catch (error) {
+        board.innerHTML = '<p class="error">Не вдалося завантажити оголошення. Спробуйте оновити сторінку пізніше.</p>';
+        console.error(error);
+    }
+}
 
-            if (filtered.length === 0) {
-                board.innerHTML = '<p class="empty">Наразі немає активних оголошень за цим фільтром.</p>';
-                return;
-            }
+function renderAnnouncements() {
+    const board = document.getElementById('board');
+    let filtered = allAnnouncements;
 
-            board.innerHTML = filtered.map(a => {
-                const isImport = a['тип'] === 'Імпорт';
-                const badgeClass = isImport ? 'import' : 'export';
-                const cardClass = isImport ? 'card import' : 'card';
-                const country = a['країна'] ? `#${a['країна']}` : '';
+    if (currentFilter !== 'all') {
+        filtered = filtered.filter(a => a['тип'] === currentFilter);
+    }
+    if (currentSearch) {
+        const q = currentSearch.toLowerCase();
+        filtered = filtered.filter(a =>
+            Object.values(a).some(v => String(v).toLowerCase().includes(q))
+        );
+    }
 
-                return `
-                    <div class="${cardClass}">
-                        <div class="card-header">
-                            <span class="badge ${badgeClass}">${a['тип'] || ''} ${country}</span>
-                            <span class="card-date">${a['дата'] || ''}</span>
-                        </div>
-                        <div class="route">
-                            📍 ${a['звідки'] || ''} <span class="arrow">➔</span> ${a['куди'] || ''}
-                        </div>
-                        ${a['завантаження'] ? `<div class="card-row"><span class="icon">🗓</span><span class="label">Завантаження:</span><span class="value">${a['завантаження']}</span></div>` : ''}
-                        ${a['вантаж'] ? `<div class="card-row"><span class="icon">📦</span><span class="label">Вантаж:</span><span class="value">${a['вантаж']}</span></div>` : ''}
-                        ${a['авто'] ? `<div class="card-row"><span class="icon">🚛</span><span class="label">Авто:</span><span class="value">${a['авто']}</span></div>` : ''}
-                        ${a['митниця'] ? `<div class="card-row"><span class="icon">📑</span><span class="label">Митниця:</span><span class="value">${a['митниця']}</span></div>` : ''}
-                        <div class="card-footer">
-                            <span class="price">${a['оплата'] || 'За запитом'}</span>
-                            <a href="https://t.me/logifast" target="_blank" class="contact-btn">Обговорити</a>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
+    if (filtered.length === 0) {
+        board.innerHTML = '<p class="empty">Наразі немає активних оголошень за цим фільтром.</p>';
+        return;
+    }
 
-        document.querySelectorAll('.filter-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                currentFilter = btn.dataset.filter;
-                renderAnnouncements();
-            });
-        });
+    board.innerHTML = filtered.map(a => {
+        const isImport = a['тип'] === 'Імпорт';
+        const badgeClass = isImport ? 'import' : 'export';
+        const cardClass = isImport ? 'card import' : 'card';
+        const country = a['країна'] ? ' #' + a['країна'] : '';
+        const transformed = transformAnnouncement(a['текст'] || '');
 
-        document.getElementById('search').addEventListener('input', (e) => {
-            currentSearch = e.target.value;
-            renderAnnouncements();
-        });
+        return `
+            <div class="${cardClass}">
+                <div class="card-header">
+                    <span class="badge ${badgeClass}">${a['тип'] || ''}${country}</span>
+                    <span class="card-date">${a['дата'] || ''}</span>
+                </div>
+                <div class="announcement-text">${escapeHtml(transformed)}</div>
+                <div class="card-footer">
+                    <a href="https://t.me/logifast" target="_blank" class="contact-btn">Обговорити</a>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
 
-        loadAnnouncements();
+function escapeHtml(str) {
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+}
+
+document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentFilter = btn.dataset.filter;
+        renderAnnouncements();
+    });
+});
+
+document.getElementById('search').addEventListener('input', (e) => {
+    currentSearch = e.target.value;
+    renderAnnouncements();
+});
+
+loadAnnouncements();
     </script>
 </body>
 </html>
