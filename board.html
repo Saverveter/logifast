@@ -34,7 +34,7 @@
         .nav-links a { padding: 6px 0; border-bottom: 2px solid transparent; transition: border-color 0.25s; font-weight: 500; }
         .nav-links a:hover, .nav-links a.active { color: #fff; border-bottom-color: #8bc34a; }
 
-        .container { max-width: 1200px; margin: 0 auto; padding: 40px 24px; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 40px 24px; }
         h1 { font-weight: 500; font-size: clamp(28px, 5vw, 40px); color: #1a2a1f; margin-bottom: 8px; }
         .subtitle { color: #5a6a5e; margin-bottom: 32px; font-size: 16px; }
 
@@ -52,41 +52,48 @@
         }
         .search-input:focus { border-color: #2b7a5a; }
 
-        .board { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 24px; }
+        .board { display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 24px; }
 
         .card {
-            background: #fff; border-radius: 18px; padding: 24px;
+            background: #fff; border-radius: 18px; padding: 22px 26px;
             box-shadow: 0 8px 32px rgba(0,0,0,0.06);
             border-left: 4px solid #2b7a5a;
             transition: transform 0.3s, box-shadow 0.3s;
+            display: flex;
+            flex-direction: column;
         }
         .card:hover { transform: translateY(-4px); box-shadow: 0 16px 48px rgba(43,122,90,0.12); }
         .card.import { border-left-color: #1976d2; }
 
-        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; gap: 12px; }
+        .card-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 14px; gap: 12px; flex-wrap: wrap;
+        }
         .badge {
-            display: inline-block; padding: 4px 12px; border-radius: 20px;
+            display: inline-block; padding: 4px 14px; border-radius: 20px;
             font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
         }
         .badge.export { background: #e8f5e9; color: #2b7a5a; }
         .badge.import { background: #e3f2fd; color: #1976d2; }
         .card-date { font-size: 12px; color: #999; }
 
-        .route { font-size: 16px; font-weight: 600; color: #1a2a1f; margin-bottom: 16px; line-height: 1.4; }
-        .route .arrow { color: #2b7a5a; margin: 0 6px; }
-
-        .card-row { display: flex; gap: 10px; margin-bottom: 10px; font-size: 14px; align-items: flex-start; }
-        .card-row .icon { flex-shrink: 0; width: 20px; }
-        .card-row .label { color: #5a6a5e; min-width: 80px; flex-shrink: 0; }
-        .card-row .value { color: #1e1e1e; word-break: break-word; }
+        .announcement-text {
+            font-size: 14.5px;
+            line-height: 1.65;
+            color: #1e1e1e;
+            white-space: pre-line;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            margin-bottom: 16px;
+            flex: 1;
+        }
 
         .card-footer {
-            margin-top: 20px; padding-top: 16px; border-top: 1px solid #eef2ee;
-            display: flex; justify-content: space-between; align-items: center; gap: 12px;
+            padding-top: 14px; border-top: 1px solid #eef2ee;
+            display: flex; justify-content: flex-end;
         }
-        .price { font-size: 18px; font-weight: 700; color: #2b7a5a; }
         .contact-btn {
-            padding: 8px 18px; background: #2b7a5a; color: #fff;
+            padding: 9px 22px; background: #2b7a5a; color: #fff;
             border-radius: 30px; font-size: 13px; font-weight: 600;
             transition: background 0.2s, transform 0.2s;
         }
@@ -105,6 +112,8 @@
             .nav-links { gap: 10px; font-size: 10.5px; }
             .container { padding: 24px 16px; }
             .board { grid-template-columns: 1fr; }
+            .card { padding: 18px 18px; }
+            .announcement-text { font-size: 13.5px; }
         }
     </style>
 </head>
@@ -141,123 +150,146 @@
     <script>
         const API_URL = 'https://script.google.com/macros/s/AKfycbyatAUQq657hCQdKnTMSutp7wMDV1D7jyBA8x0UdNna_znEEgaWWzbFLVk0mltWy5OB/exec';
 
-let allAnnouncements = [];
-let currentFilter = 'all';
-let currentSearch = '';
+        let allAnnouncements = [];
+        let currentFilter = 'all';
+        let currentSearch = '';
 
-function clean(obj) {
-    const out = {};
-    Object.keys(obj).forEach(k => {
-        const key = String(k).trim();
-        let v = obj[k];
-        if (typeof v === 'string') v = v.trim();
-        out[key] = v;
-    });
-    return out;
-}
-
-// Перетворює текст оголошення: замінює Вантаж, прибирає Оплату
-function transformAnnouncement(text) {
-    if (!text) return '';
-    const lines = text.split('\n');
-    const out = [];
-    for (let line of lines) {
-        // Прибираємо рядок з Оплатою
-        if (/💵/.test(line)) continue;
-
-        // Замінюємо рядок з Вантажем
-        if (/📦/.test(line)) {
-            const isGrain = /зерн|зерно|ріпак|шрот|соя|сою|горох|пшениц|кукурудз|ячмін|макух|соняшник|овес|жито|біг[\s-]?бег|big[\s-]?bag/i.test(line);
-            if (isGrain) {
-                out.push('📦 Вантаж: Зерно в біг-бегах');
-            } else {
-                out.push('📦 Вантаж: ТНС');
-            }
-            continue;
+        function clean(obj) {
+            const out = {};
+            Object.keys(obj).forEach(k => {
+                const key = String(k).trim();
+                let v = obj[k];
+                if (typeof v === 'string') v = v.trim();
+                out[key] = v;
+            });
+            return out;
         }
 
-        out.push(line);
-    }
-    return out.join('\n');
-}
+        // Визначаємо, чи це зернова культура
+        function isGrain(text) {
+            return /зерн|зерно|ріпак|шрот|соя|сою|горох|пшениц|кукурудз|ячмін|макух|соняшник|овес|жито|просо|люцерн|біг[\s-]?бег|big[\s-]?bag/i.test(text || '');
+        }
 
-async function loadAnnouncements() {
-    const board = document.getElementById('board');
-    try {
-        const response = await fetch(API_URL + '?t=' + Date.now());
-        if (!response.ok) throw new Error('Network error');
-        const rawData = await response.json();
-        allAnnouncements = rawData.map(clean);
-        renderAnnouncements();
-    } catch (error) {
-        board.innerHTML = '<p class="error">Не вдалося завантажити оголошення. Спробуйте оновити сторінку пізніше.</p>';
-        console.error(error);
-    }
-}
+        // Перетворює Вантаж і прибирає Оплату в готовому тексті
+        function transformText(text) {
+            if (!text) return '';
+            const lines = text.split('\n');
+            const out = [];
+            for (let line of lines) {
+                if (/💵/.test(line)) continue;
+                if (/📦/.test(line)) {
+                    out.push(isGrain(line) ? '📦 Вантаж: Зерно в біг-бегах' : '📦 Вантаж: ТНС');
+                    continue;
+                }
+                out.push(line);
+            }
+            return out.join('\n');
+        }
 
-function renderAnnouncements() {
-    const board = document.getElementById('board');
-    let filtered = allAnnouncements;
+        // Збирає текст із розкиданих полів (стара структура таблиці)
+        function buildTextFromFields(a) {
+            const parts = [];
+            if (a['країна']) parts.push('🟢 #' + a['країна']);
+            if (a['звідки'] || a['куди']) {
+                parts.push('📍 ' + (a['звідки'] || '') + ' ➔ ' + (a['куди'] || ''));
+            }
+            if (a['завантаження']) parts.push('🗓 Завантаження: ' + a['завантаження']);
 
-    if (currentFilter !== 'all') {
-        filtered = filtered.filter(a => a['тип'] === currentFilter);
-    }
-    if (currentSearch) {
-        const q = currentSearch.toLowerCase();
-        filtered = filtered.filter(a =>
-            Object.values(a).some(v => String(v).toLowerCase().includes(q))
-        );
-    }
+            // Вантаж — завжди перевизначаємо
+            parts.push(isGrain(a['вантаж']) ? '📦 Вантаж: Зерно в біг-бегах' : '📦 Вантаж: ТНС');
 
-    if (filtered.length === 0) {
-        board.innerHTML = '<p class="empty">Наразі немає активних оголошень за цим фільтром.</p>';
-        return;
-    }
+            if (a['авто']) parts.push('🚛 Авто: ' + a['авто']);
+            if (a['митниця']) parts.push('📑 Митниця: ' + a['митниця']);
+            // Оплату НЕ додаємо
+            parts.push('📩 Пишіть в особисті повідомлення для обговорення ставки та деталей! @logifast');
+            return parts.join('\n');
+        }
 
-    board.innerHTML = filtered.map(a => {
-        const isImport = a['тип'] === 'Імпорт';
-        const badgeClass = isImport ? 'import' : 'export';
-        const cardClass = isImport ? 'card import' : 'card';
-        const country = a['країна'] ? ' #' + a['країна'] : '';
-        const transformed = transformAnnouncement(a['текст'] || '');
+        // Універсальна: якщо є поле «текст» — використовуємо його, інакше збираємо з полів
+        function getAnnouncementText(a) {
+            if (a['текст'] && String(a['текст']).trim().length > 0) {
+                return transformText(a['текст']);
+            }
+            return buildTextFromFields(a);
+        }
 
-        return `
-            <div class="${cardClass}">
-                <div class="card-header">
-                    <span class="badge ${badgeClass}">${a['тип'] || ''}${country}</span>
-                    <span class="card-date">${a['дата'] || ''}</span>
-                </div>
-                <div class="announcement-text">${escapeHtml(transformed)}</div>
-                <div class="card-footer">
-                    <a href="https://t.me/logifast" target="_blank" class="contact-btn">Обговорити</a>
-                </div>
-            </div>
-        `;
-    }).join('');
-}
+        async function loadAnnouncements() {
+            const board = document.getElementById('board');
+            try {
+                const response = await fetch(API_URL + '?t=' + Date.now());
+                if (!response.ok) throw new Error('Network error');
+                const rawData = await response.json();
+                allAnnouncements = rawData.map(clean);
+                renderAnnouncements();
+            } catch (error) {
+                board.innerHTML = '<p class="error">Не вдалося завантажити оголошення. Спробуйте оновити сторінку пізніше.</p>';
+                console.error(error);
+            }
+        }
 
-function escapeHtml(str) {
-    return String(str)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;');
-}
+        function renderAnnouncements() {
+            const board = document.getElementById('board');
+            let filtered = allAnnouncements;
 
-document.querySelectorAll('.filter-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        currentFilter = btn.dataset.filter;
-        renderAnnouncements();
-    });
-});
+            if (currentFilter !== 'all') {
+                filtered = filtered.filter(a => a['тип'] === currentFilter);
+            }
+            if (currentSearch) {
+                const q = currentSearch.toLowerCase();
+                filtered = filtered.filter(a =>
+                    Object.values(a).some(v => String(v).toLowerCase().includes(q))
+                );
+            }
 
-document.getElementById('search').addEventListener('input', (e) => {
-    currentSearch = e.target.value;
-    renderAnnouncements();
-});
+            if (filtered.length === 0) {
+                board.innerHTML = '<p class="empty">Наразі немає активних оголошень за цим фільтром.</p>';
+                return;
+            }
 
-loadAnnouncements();
+            board.innerHTML = filtered.map(a => {
+                const isImport = a['тип'] === 'Імпорт';
+                const badgeClass = isImport ? 'import' : 'export';
+                const cardClass = isImport ? 'card import' : 'card';
+                const country = a['країна'] ? ' #' + a['країна'] : '';
+                const text = getAnnouncementText(a);
+
+                return `
+                    <div class="${cardClass}">
+                        <div class="card-header">
+                            <span class="badge ${badgeClass}">${a['тип'] || ''}${country}</span>
+                            <span class="card-date">${a['дата'] || ''}</span>
+                        </div>
+                        <div class="announcement-text">${escapeHtml(text)}</div>
+                        <div class="card-footer">
+                            <a href="https://t.me/logifast" target="_blank" class="contact-btn">Обговорити</a>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function escapeHtml(str) {
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;');
+        }
+
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentFilter = btn.dataset.filter;
+                renderAnnouncements();
+            });
+        });
+
+        document.getElementById('search').addEventListener('input', (e) => {
+            currentSearch = e.target.value;
+            renderAnnouncements();
+        });
+
+        loadAnnouncements();
     </script>
 </body>
 </html>
