@@ -6,137 +6,61 @@
     <title>Актуальні оголошення — LogiFast</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { 
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; 
-            background-color: #fafaf8; 
-            color: #1e1e1e; 
-            padding-bottom: 40px; 
-        }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; background-color: #fcfcfc; color: #1e1e1e; padding-bottom: 40px; }
         
-        /* Шапка сайту (як на скріншоті) */
-        header { 
-            background-color: #1a2a1f; 
-            padding: 15px 40px; 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            color: #fff; 
-        }
-        .logo { font-size: 24px; font-weight: 700; display: flex; align-items: center; gap: 10px; letter-spacing: -0.5px; }
-        .logo span { color: #4caf50; }
-        nav a { 
-            color: #ccc; 
-            text-decoration: none; 
-            margin-left: 25px; 
-            font-size: 15px; 
-            padding-bottom: 5px; 
-            border-bottom: 2px solid transparent; 
-            transition: 0.3s; 
-        }
-        nav a:hover, nav a.active { 
-            color: #fff; 
-            border-bottom-color: #4caf50; 
-        }
+        /* Шапка */
+        header { background-color: #1a2a1f; padding: 15px 40px; display: flex; justify-content: space-between; align-items: center; color: #fff; }
+        .logo { font-size: 22px; font-weight: 700; display: flex; align-items: center; gap: 10px; }
+        .logo span { color: #2b7a5a; }
+        nav a { color: #ccc; text-decoration: none; margin-left: 25px; font-size: 14px; padding-bottom: 5px; border-bottom: 2px solid transparent; transition: 0.3s; }
+        nav a:hover, nav a.active { color: #fff; border-bottom-color: #2b7a5a; }
         
-        /* Контейнер */
+        /* Головний контейнер */
         .container { max-width: 1200px; margin: 0 auto; padding: 40px 20px; }
-        h1 { font-size: 32px; margin-bottom: 10px; color: #1a2a1f; font-weight: 700; }
+        h1 { font-size: 36px; margin-bottom: 10px; color: #1a2a1f; }
         .subtitle { color: #666; font-size: 15px; margin-bottom: 30px; }
         
-        /* Фільтри */
-        .controls { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 30px; align-items: center; }
-        .filter-btn { 
-            padding: 8px 18px; 
-            border-radius: 30px; 
-            border: 1px solid #ccc; 
-            background: #fff; 
-            cursor: pointer; 
-            font-size: 14px; 
-            font-weight: 500; 
-            transition: 0.2s; 
-            color: #333; 
-        }
+        /* Фільтри та пошук */
+        .controls { display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 30px; align-items: center; }
+        .filter-btn { padding: 10px 20px; border-radius: 30px; border: 1px solid #ccc; background: #fff; cursor: pointer; font-size: 14px; font-weight: 500; transition: 0.2s; color: #333; }
         .filter-btn.active { background-color: #2b7a5a; color: #fff; border-color: #2b7a5a; }
         .filter-btn:hover:not(.active) { border-color: #2b7a5a; color: #2b7a5a; }
-        .search-input { 
-            flex: 1; 
-            min-width: 250px; 
-            padding: 10px 18px; 
-            border-radius: 30px; 
-            border: 1px solid #ccc; 
-            font-size: 14px; 
-            outline: none; 
-            background: #fff;
-        }
+        .search-input { flex: 1; min-width: 250px; padding: 12px 20px; border-radius: 30px; border: 1px solid #ddd; font-size: 14px; outline: none; }
         .search-input:focus { border-color: #2b7a5a; }
         
         /* Сітка карток */
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 20px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 20px; }
         
-        /* Картка (як на скріншоті) */
-        .card { 
-            background: #fff; 
-            border-radius: 12px; 
-            padding: 20px; 
-            border: 1px solid #e0e5e0; 
-            display: flex; 
-            flex-direction: column; 
-            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-        }
-        .card-header { 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            margin-bottom: 15px; 
-        }
-        .badge { 
-            font-size: 13px; 
-            font-weight: 700; 
-            text-transform: uppercase; 
-            padding: 6px 12px; 
-            border-radius: 6px; 
-            letter-spacing: 0.5px;
-        }
+        /* Картка */
+        .card { background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.04); border: 1px solid #eee; display: flex; flex-direction: column; transition: 0.2s; }
+        .card:hover { box-shadow: 0 5px 20px rgba(0,0,0,0.08); transform: translateY(-2px); }
+        
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .badge { font-size: 12px; font-weight: 600; text-transform: uppercase; padding: 5px 10px; border-radius: 6px; }
         .badge.export { background: #e8f5e9; color: #2b7a5a; }
         .badge.import { background: #e3f2fd; color: #1565c0; }
         .date { font-size: 13px; color: #888; }
         
         .card-body { flex: 1; }
-        .info-row { display: flex; align-items: flex-start; margin-bottom: 10px; font-size: 14px; line-height: 1.5; color: #333; }
-        .text { flex: 1; }
+        .info-row { display: flex; align-items: flex-start; margin-bottom: 12px; font-size: 14px; line-height: 1.5; }
+        .icon { width: 24px; flex-shrink: 0; font-size: 16px; }
+        .text { flex: 1; color: #333; }
         
-        /* Футер всередині картки */
-        .card-footer-text {
-            margin-top: 15px;
-            padding-top: 10px;
-            font-size: 13px;
-            color: #555;
-            border-top: 1px dashed #eee;
-            line-height: 1.4;
-        }
+        .route { font-weight: 600; color: #111; margin-bottom: 5px; }
+        .route span { color: #2b7a5a; font-weight: 700; }
         
-        /* Кнопка внизу картки */
-        .card-footer { margin-top: 15px; text-align: right; }
-        .btn-talk { 
-            background-color: #2b7a5a; 
-            color: #fff; 
-            text-decoration: none; 
-            padding: 10px 24px; 
-            border-radius: 20px; 
-            font-size: 14px; 
-            font-weight: 600; 
-            display: inline-block; 
-            transition: 0.2s; 
-        }
+        .card-footer { margin-top: 15px; padding-top: 15px; border-top: 1px solid #f0f0f0; text-align: right; }
+        .btn-talk { background-color: #2b7a5a; color: #fff; text-decoration: none; padding: 10px 20px; border-radius: 20px; font-size: 14px; font-weight: 600; display: inline-block; transition: 0.2s; }
         .btn-talk:hover { background-color: #1f5f45; }
         
         /* Статуси */
-        .loading, .no-results { text-align: center; padding: 50px; color: #666; grid-column: 1 / -1; font-size: 16px; }
+        .loading { text-align: center; padding: 50px; color: #666; grid-column: 1 / -1; }
+        .no-results { text-align: center; padding: 50px; color: #999; grid-column: 1 / -1; font-size: 16px; }
 
         @media (max-width: 600px) {
             header { padding: 15px 20px; flex-direction: column; gap: 15px; }
             nav a { margin: 0 10px; }
-            h1 { font-size: 26px; }
+            h1 { font-size: 28px; }
             .grid { grid-template-columns: 1fr; }
         }
     </style>
@@ -174,16 +98,26 @@
         let allData = [];
         let currentFilter = 'all';
 
+        // === ФУНКЦІЯ ОЧИЩЕННЯ ТЕКСТУ (гарантовано прибирає футер) ===
+        function cleanText(text) {
+            if (!text) return '';
+            return String(text)
+                .split('📩')[0]
+                .split(/Пишіть\s+в\s+особисті/i)[0]
+                .split(/@logifast/i)[0]
+                .replace(/\s*Обговорити\s*$/i, '')
+                .trim();
+        }
+
         // === ЗАВАНТАЖЕННЯ ДАНИХ ===
         async function fetchData() {
             try {
-                // Обхід кешу Google
-                const response = await fetch(API_URL + '?t=' + new Date().getTime());
+                const response = await fetch(API_URL);
                 if (!response.ok) throw new Error('Network error');
                 
                 let data = await response.json();
                 
-                // Виправляємо пробіли в ключах
+                // ВИПРАВЛЕННЯ ПРОБІЛІВ У КЛЮЧАХ (наприклад, "звідки " -> "звідки")
                 allData = data.map(row => {
                     const normalized = {};
                     Object.keys(row).forEach(key => {
@@ -218,8 +152,10 @@
             const searchQuery = document.getElementById('searchInput').value.toLowerCase().trim();
 
             let filtered = allData.filter(item => {
+                // Фільтр по типу
                 if (currentFilter !== 'all' && item.тип !== currentFilter) return false;
                 
+                // Пошук
                 if (searchQuery) {
                     const searchString = `${item.країна} ${item['звідки']} ${item['куди']} ${item.авто} ${item.митниця}`.toLowerCase();
                     if (!searchString.includes(searchQuery)) return false;
@@ -235,15 +171,15 @@
             grid.innerHTML = filtered.map(item => {
                 const isExport = item.тип === 'Експорт';
                 const badgeClass = isExport ? 'export' : 'import';
+                const routeFrom = cleanText(item['звідки']) || '—';
+                const routeTo = cleanText(item['куди']) || '—';
                 
-                // Беремо дані як є (без очищення)
-                const routeFrom = item['звідки'] || '';
-                const routeTo = item['куди'] || '';
-                const loading = item['завантаження'] || '';
-                const cargo = item.вантаж || 'тнс';
-                const auto = item.авто || '';
-                const customs = item.митниця || '—';
-                const payment = item['оплата'] || 'до обговорення';
+                // Очищаємо всі поля від футера
+                const loading = cleanText(item['завантаження']) || '—';
+                const cargo = cleanText(item.вантаж) || 'тнс';
+                const auto = cleanText(item.авто) || '—';
+                const customs = cleanText(item.митниця) || '—';
+                const payment = cleanText(item['оплата']) || 'до обговорення';
 
                 return `
                     <div class="card">
@@ -253,30 +189,31 @@
                         </div>
                         <div class="card-body">
                             <div class="info-row">
-                                <div class="text">🟢 #${item.країна}</div>
+                                <div class="icon">📍</div>
+                                <div class="text">
+                                    <div class="route">${routeFrom}</div>
+                                    <div class="route"><span>➔</span> ${routeTo}</div>
+                                </div>
                             </div>
                             <div class="info-row">
-                                <div class="text">📍 ${routeFrom} ➔ ${routeTo}</div>
+                                <div class="icon">🗓</div>
+                                <div class="text">Завантаження: ${loading}</div>
                             </div>
                             <div class="info-row">
-                                <div class="text">🗓 Завантаження: ${loading}</div>
+                                <div class="icon">📦</div>
+                                <div class="text">Вантаж: ${cargo}</div>
                             </div>
                             <div class="info-row">
-                                <div class="text">📦 Вантаж: ${cargo}</div>
+                                <div class="icon">🚛</div>
+                                <div class="text">Авто: ${auto}</div>
                             </div>
                             <div class="info-row">
-                                <div class="text">🚛 Авто: ${auto}</div>
+                                <div class="icon">📑</div>
+                                <div class="text">Митниця: ${customs}</div>
                             </div>
                             <div class="info-row">
-                                <div class="text">📑 Митниця: ${customs}</div>
-                            </div>
-                            <div class="info-row">
-                                <div class="text">💵 Оплата: ${payment}</div>
-                            </div>
-                            
-                            <!-- ТОЙ САМИЙ ФУТЕР, ЯКИЙ БУВ НА ПОЧАТКУ -->
-                            <div class="card-footer-text">
-                                📩 Пишіть в особисті повідомлення для обговорення ставки та деталей! @logifast
+                                <div class="icon">💵</div>
+                                <div class="text">Оплата: ${payment}</div>
                             </div>
                         </div>
                         <div class="card-footer">
