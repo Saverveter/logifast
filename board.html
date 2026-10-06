@@ -113,14 +113,14 @@
       return /зерн|зерно|ріпак|шрот|соя|сою|горох|пшениц|кукурудз|ячмін|макух|соняшник|овес|жито|просо|люцерн|біг[\s-]?бег|big[\s-]?bag/i.test(text || '');
     }
 
-    // ЗМІНА 1: Додано перевірку на 📩, щоб вирізати футер
+    // Обробка тексту, якщо він приходить у полі "текст"
     function transformText(text) {
       if (!text) return '';
       const lines = text.split('\n');
       const out = [];
       for (let line of lines) {
         if (/💵/.test(line)) continue;
-        if (/📩/.test(line)) continue; // <-- ВИРІЗАЄМО ФУТЕР
+        if (/📩/.test(line)) continue; // Вирізаємо рядок з футером
         if (/📦/.test(line)) {
           out.push(isGrain(line) ? '📦 Вантаж: Зерно в біг-бегах' : '📦 Вантаж: ТНС');
           continue;
@@ -130,7 +130,7 @@
       return out.join('\n');
     }
 
-    // ЗМІНА 2: Видалено рядок, який примусово додавав футер
+    // Збирає текст з окремих колонок
     function buildTextFromFields(a) {
       const parts = [];
       if (a['країна']) parts.push('🟢 #' + a['країна']);
@@ -141,15 +141,26 @@
       parts.push(isGrain(a['вантаж']) ? '📦 Вантаж: Зерно в біг-бегах' : '📦 Вантаж: ТНС');
       if (a['авто']) parts.push('🚛 Авто: ' + a['авто']);
       if (a['митниця']) parts.push('📑 Митниця: ' + a['митниця']);
-      // Рядок з футером видалено
+      // Футер тут більше не додається
       return parts.join('\n');
     }
 
+    // Універсальна функція з "ядерним" очищенням
     function getAnnouncementText(a) {
+      let text = '';
       if (a['текст'] && String(a['текст']).trim().length > 0) {
-        return transformText(a['текст']);
+        text = transformText(a['текст']);
+      } else {
+        text = buildTextFromFields(a);
       }
-      return buildTextFromFields(a);
+      
+      // 🛡️ ЯДЕРНЕ ОЧИЩЕННЯ: гарантовано вирізає футер, де б він не знаходився
+      return text
+        .replace(/📩[^\n]*/g, '')                 // Видаляє все від 📩 до кінця рядка
+        .replace(/Пишіть\s+в\s+особисті[^\n]*/gi, '') // Видаляє текст "Пишіть в особисті..."
+        .replace(/@logifast/gi, '')                // Видаляє згадку @logifast
+        .replace(/📩/g, '')                        // Про всяк випадок видаляє сам смайлик
+        .trim();                                   // Прибирає зайві пробіли
     }
 
     async function loadAnnouncements() {
